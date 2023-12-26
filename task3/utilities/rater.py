@@ -1,11 +1,14 @@
 import re
+
 import nltk.corpus
-nltk.download('stopwords')
+
+nltk.download("stopwords")
+import statistics as st
+from collections.abc import Iterable
+from typing import Text, Union
+
 import numpy as np
 import pandas as pd
-import statistics as st
-from typing import Union, Text
-from collections.abc import Iterable
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.porter import PorterStemmer
@@ -38,13 +41,15 @@ class TfIdfRater:
     def __init__(self) -> None:
         self.vectorizer = TfidfVectorizer(use_idf=True, min_df=3)
         self.stemmer = PorterStemmer()
-        
-        self.stop = stopwords.words('english') + ['hey', 'hi']  # stopwords
-        self.stemmed_stop = [self.stemmer.stem(x) for x in self.stop]  # stemmed stopwords
-        
+
+        self.stop = stopwords.words("english") + ["hey", "hi"]  # stopwords
+        self.stemmed_stop = [
+            self.stemmer.stem(x) for x in self.stop
+        ]  # stemmed stopwords
+
         self.cleaned_texts = []
         self.result = []
-        
+
         # Regular expression for cleanup
         self.re_form = r"(@\[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)|^rt|http.+?"
 
@@ -77,9 +82,13 @@ class TfIdfRater:
         text = text.lower()  # Convert to lowercase
         text = text.strip()  # Remove leading and trailing spaces
         text = re.sub(self.re_form, "", text)  # Remove punctuation and links
-        text = re.sub(' +', ' ', text)  # Remove redundant spaces
-        text = ' '.join([self.stemmer.stem(word) for word in text.split(' ')])  # Stemming
-        text = " ".join([word for word in text.split() if word not in self.stemmed_stop])  # Remove stopwords
+        text = re.sub(" +", " ", text)  # Remove redundant spaces
+        text = " ".join(
+            [self.stemmer.stem(word) for word in text.split(" ")]
+        )  # Stemming
+        text = " ".join(
+            [word for word in text.split() if word not in self.stemmed_stop]
+        )  # Remove stopwords
         return text
 
     def rate(self, texts: Union[np.array, list]) -> np.array:
@@ -119,5 +128,6 @@ class TfIdfRater:
         self.result = np.array(self.result) / mx_idf  # Scale the ratings
         return self.result
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     pass
